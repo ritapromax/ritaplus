@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDGs 目標14｜第四關：海洋保育連連看</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #1e90ff, #00bfff, #87ceeb);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .header {
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            display: flex; /* 使內容水平排列 */
+            justify-content: space-between; /* 內容兩端對齊 */
+            align-items: center; /* 內容垂直居中 */
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 0;
+        }
+        
+        .progress {
+            font-size: 14px;
+            color: #0066cc;
+        }
+        
+        /* 音樂控制樣式 */
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* 控制元素之間的間距 */
+        }
+
+        .music-button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .music-button:hover {
+            background-color: #0055aa;
+        }
+
+        .volume-slider {
+            width: 80px;
+        }
+
+        .game-container {
+            width: 95%;
+            max-width: 600px;
+            margin: 10px auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .matching-area {
+            display: flex;
+            justify-content: space-between;
+            flex-grow: 1;
+            position: relative;
+        }
+        
+        .items-column {
+            width: 48%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        
+        .item {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            position: relative;
+            z-index: 2;
+            border: 1px solid transparent;
+        }
+        
+        .item.selected {
+            border-color: #0066cc;
+            background-color: #d1e7ff;
+        }
+        
+        .item.correct {
+            border-color: #2E8B57;
+            background-color: #90EE90;
+        }
+        
+        .item.incorrect {
+            border-color: #CD5C5C;
+            background-color: #FFA07A;
+        }
+        
+        .item-image {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 5px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .line {
+            position: absolute;
+            background-color: #0066cc;
+            height: 2px;
+            transform-origin: 0 0;
+            z-index: 1;
+        }
+        
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            width: 80%;
+            max-width: 400px;
+        }
+        
+        .message h2 {
+            font-size: 18px;
+            color: #0066cc;
+            margin: 5px 0;
+        }
+        
+        .next-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .instructions {
+            font-size: 12px;
+            text-align: center;
+            margin: 5px 0;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+        }
+        
+        /* 新增遊戲說明彈窗樣式 */
+        .intro-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .intro-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .intro-content h2 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        
+        .start-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        
+        .start-btn:hover {
+            background-color: #0055aa;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景音樂 -->
+    <audio id="background-music" loop>
+        <source src="bgMusic.mp3" type="audio/mpeg">
+        您的瀏覽器不支援音頻元素。
+    </audio>
+
+    <div class="header">
+        <div class="title">SDGs 目標14｜第四關：海洋保育連連看</div>
+        <div class="progress">配對完成: <span id="matched-count">0</span>/6</div>
+        <div class="music-controls">
+            <button id="music-toggle-btn" class="music-button">播放音樂</button>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="volume-slider">
+        </div>
+    </div>
+    
+    <div class="game-container">
+        <div class="instructions">點選左邊問題，再點選右邊解決方案進行配對</div>
+        
+        <div class="matching-area">
+            <div class="items-column" id="problems-column"></div>
+            <div class="items-column" id="solutions-column"></div>
+        </div>
+    </div>
+    
+    <!-- 新增遊戲說明彈窗 -->
+    <div class="intro-modal" id="intro-modal">
+        <div class="intro-content">
+            <h2>海洋保育連連看遊戲說明</h2>
+            <p>歡迎來到第四關！這是一個關於海洋保育的配對遊戲。</p>
+            <p><strong>遊戲玩法：</strong></p>
+            <ol style="text-align: left; padding-left: 20px;">
+                <li>左側是海洋面臨的問題，右側是可能的解決方案</li>
+                <li>點選左邊的問題，再點選右邊你認為對應的解決方案</li>
+                <li>配對正確的項目會變成綠色並連線</li>
+                <li>配對錯誤的項目會短暫變成紅色</li>
+                <li>完成所有6組配對即可過關</li>
+            </ol>
+            <p>讓我們一起學習如何保護海洋生態吧！</p>
+            <button class="start-btn" id="start-btn">開始遊戲</button>
+        </div>
+    </div>
+    
+    <div class="message" id="message">
+        <h2>任務完成!</h2>
+        <p>你已成功完成所有配對！</p>
+        <button class="next-btn" onclick="nextLevel()">前往第五關</button>
+    </div>
+    
+    <script>
+        // 修正後的配對資料
+        const matchingItems = [
+            { problem: "塑膠污染", solution: "減少一次性塑膠製品使用" },
+            { problem: "過度捕撈", solution: "實施永續漁業管理" },
+            { problem: "珊瑚白化", solution: "減少溫室氣體排放" },
+            { problem: "海洋酸化", solution: "增加陸地植樹造林" },
+            { problem: "紅樹林破壞", solution: "建立海岸生態保護區" },
+            { problem: "油輪漏油污染", solution: "加強油輪運輸規範" }
+        ];
+
+        // 修正SVG圖標定義方式，避免出現亂碼
+        const problemIcon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='none' stroke='%23006699' stroke-width='2'/%3E%3Cpath d='M15,15 L25,25 M15,25 L25,15' stroke='%23CD5C5C' stroke-width='2'/%3E%3C/svg%3E";
+        const solutionIcon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='none' stroke='%232E8B57' stroke-width='2'/%3E%3Cpath d='M15,20 L20,25 L25,15' fill='none' stroke='%232E8B57' stroke-width='2'/%3E%3C/svg%3E";
+
+        let selectedProblem = null;
+        let matchedPairs = 0;
+        
+        const music = document.getElementById('background-music');
+        const musicToggleButton = document.getElementById('music-toggle-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+
+        function initGame() {
+            createMatchingItems();
+            updateMatchedCount();
+            
+            // 設置音樂控制
+            musicToggleButton.addEventListener('click', toggleMusicPlayPause);
+            volumeSlider.addEventListener('input', setMusicVolume);
+
+            // 設置開始按鈕
+            document.getElementById('start-btn').addEventListener('click', function() {
+                document.getElementById('intro-modal').style.display = 'none';
+                // 自動播放音樂（注意：瀏覽器可能會阻止自動播放）
+                music.volume = 0.5; // 設置初始音量
+                music.play().then(() => {
+                    // 音樂成功播放
+                }).catch(error => {
+                    console.log('自動播放被阻止，請用戶手動點擊播放', error);
+                    // 這裡可以選擇性地顯示提示，告訴用戶手動點擊播放按鈕
+                });
+            });
+
+            // 監聽音樂播放器狀態，更新按鈕文字
+            music.addEventListener('play', () => {
+                musicToggleButton.textContent = '暫停音樂';
+            });
+            music.addEventListener('pause', () => {
+                musicToggleButton.textContent = '播放音樂';
+            });
+        }
+        
+        // 音樂播放/暫停功能
+        function toggleMusicPlayPause() {
+            if (music.paused) {
+                music.play().catch(error => {
+                    console.log("音樂播放失敗，可能是使用者未互動:", error);
+                    // Instead of alert(), log to console or show a custom message.
+                    console.log("音樂播放需要您的互動，請點擊螢幕任意處或再次點擊播放按鈕。");
+                });
+            } else {
+                music.pause();
+            }
+        }
+
+        // 音量調節功能
+        function setMusicVolume() {
+            music.volume = volumeSlider.value;
+        }
+
+        function createMatchingItems() {
+            const problemsColumn = document.getElementById('problems-column');
+            const solutionsColumn = document.getElementById('solutions-column');
+            
+            // 清空現有內容
+            problemsColumn.innerHTML = '';
+            solutionsColumn.innerHTML = '';
+            
+            // 隨機排序解決方案
+            const shuffledSolutions = [...matchingItems].sort(() => Math.random() - 0.5);
+            
+            // 創建問題項目
+            matchingItems.forEach((item, index) => {
+                const problemItem = document.createElement('div');
+                problemItem.className = 'item';
+                problemItem.dataset.index = index;
+                problemItem.dataset.type = 'problem';
+                problemItem.innerHTML = `
+                    <div class="item-image" style="background-image: url('${problemIcon}')"></div>
+                    <div>${item.problem}</div>
+                `;
+                problemItem.addEventListener('click', selectItem);
+                problemsColumn.appendChild(problemItem);
+            });
+            
+            // 創建解決方案項目
+            shuffledSolutions.forEach((item, index) => {
+                const solutionItem = document.createElement('div');
+                solutionItem.className = 'item';
+                solutionItem.dataset.index = matchingItems.findIndex(i => i.solution === item.solution);
+                solutionItem.dataset.type = 'solution';
+                solutionItem.innerHTML = `
+                    <div class="item-image" style="background-image: url('${solutionIcon}')"></div>
+                    <div>${item.solution}</div>
+                `;
+                solutionItem.addEventListener('click', selectItem);
+                solutionsColumn.appendChild(solutionItem);
+            });
+        }
+        
+        function selectItem() {
+            if (this.classList.contains('correct')) return;
+            
+            document.querySelectorAll('.item.selected').forEach(item => {
+                if (!item.classList.contains('correct')) {
+                    item.classList.remove('selected');
+                }
+            });
+            
+            this.classList.add('selected');
+            
+            if (this.dataset.type === 'problem') {
+                selectedProblem = this;
+            } else if (selectedProblem) {
+                checkMatch(selectedProblem, this);
+                selectedProblem = null;
+            }
+        }
+        
+        function checkMatch(problemItem, solutionItem) {
+            const problemIndex = parseInt(problemItem.dataset.index);
+            const solutionIndex = parseInt(solutionItem.dataset.index);
+            
+            problemItem.classList.remove('selected');
+            solutionItem.classList.remove('selected');
+            
+            if (problemIndex === solutionIndex) {
+                problemItem.classList.add('correct');
+                solutionItem.classList.add('correct');
+                drawConnection(problemItem, solutionItem, true);
+                matchedPairs++;
+                updateMatchedCount();
+                
+                if (matchedPairs === matchingItems.length) {
+                    setTimeout(() => {
+                        document.getElementById('message').style.display = 'block';
+                        music.pause(); // 遊戲結束時暫停音樂
+                    }, 300);
+                }
+            } else {
+                problemItem.classList.add('incorrect');
+                solutionItem.classList.add('incorrect');
+                drawConnection(problemItem, solutionItem, false);
+                
+                setTimeout(() => {
+                    problemItem.classList.remove('incorrect');
+                    solutionItem.classList.remove('incorrect');
+                    removeLastLine();
+                }, 800);
+            }
+        }
+        
+        function drawConnection(problemItem, solutionItem, isCorrect) {
+            const matchingArea = document.querySelector('.matching-area');
+            const line = document.createElement('div');
+            line.className = 'line';
+            
+            const startX = problemItem.offsetLeft + problemItem.offsetWidth;
+            const startY = problemItem.offsetTop + problemItem.offsetHeight / 2;
+            const endX = solutionItem.offsetLeft;
+            const endY = solutionItem.offsetTop + solutionItem.offsetHeight / 2;
+            
+            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+            const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+            
+            line.style.width = `${length}px`;
+            line.style.left = `${startX}px`;
+            line.style.top = `${startY}px`;
+            line.style.transform = `rotate(${angle}deg)`;
+            line.style.backgroundColor = isCorrect ? '#2E8B57' : '#CD5C5C';
+            
+            matchingArea.appendChild(line);
+        }
+        
+        function removeLastLine() {
+            const lines = document.querySelectorAll('.line');
+            if (lines.length > 0) {
+                lines[lines.length - 1].remove();
+            }
+        }
+        
+        function updateMatchedCount() {
+            document.getElementById('matched-count').textContent = matchedPairs;
+        }
+        
+        function nextLevel() {
+            window.location.href = "level5.html";
+        }
+        
+        window.onload = initGame;
+    </script>
+</body>
+</html>

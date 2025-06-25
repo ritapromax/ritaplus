@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDGs 目標14｜第三關：海洋知識挑戰</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #1e90ff, #00bfff, #87ceeb);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+        
+        .header {
+            width: 100%;
+            padding: 15px 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            display: flex; /* 使內容水平排列 */
+            justify-content: space-between; /* 內容兩端對齊 */
+            align-items: center; /* 內容垂直居中 */
+        }
+        
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 0; /* 移除底部外邊距 */
+        }
+        
+        .progress {
+            font-size: 16px;
+            color: #0066cc;
+            margin-right: 20px; /* 增加與音樂控制的間距 */
+        }
+
+        /* 音樂控制樣式 */
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* 控制元素之間的間距 */
+        }
+
+        .music-button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .music-button:hover {
+            background-color: #0055aa;
+        }
+
+        .volume-slider {
+            width: 80px;
+        }
+        
+        .quiz-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 30px;
+            width: 80%;
+            max-width: 600px;
+            margin: 20px auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            display: none; /* 初始隱藏 */
+        }
+        
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #0066cc;
+            min-height: 60px;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .option {
+            background-color: #f0f8ff;
+            border: 2px solid #1e90ff;
+            border-radius: 8px;
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .option:hover {
+            background-color: #d1e7ff;
+            transform: translateY(-2px);
+        }
+        
+        .option.correct {
+            background-color: #90EE90;
+            border-color: #2E8B57;
+        }
+        
+        .option.incorrect {
+            background-color: #FFA07A;
+            border-color: #CD5C5C;
+        }
+        
+        .feedback {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 24px;
+            text-align: center;
+        }
+        
+        .next-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            display: block;
+            margin: 0 auto;
+            transition: background-color 0.3s;
+        }
+        
+        .next-btn:hover {
+            background-color: #0055aa;
+        }
+        
+        .next-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .message h2 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        
+        .message p {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .ocean-background {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background-color: #1e90ff;
+            z-index: -1;
+        }
+        
+        .fish {
+            position: fixed;
+            width: 50px;
+            height: 25px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 25"><path d="M40,12 C40,18 25,23 25,12 C25,1 10,6 10,12 C10,18 25,23 25,12 C25,1 40,6 40,12 Z" fill="%23ff9900" stroke="%23cc6600" stroke-width="1"/><circle cx="35" cy="10" r="3" fill="%23333"/></svg>');
+            background-repeat: no-repeat;
+            z-index: -1;
+            animation: fishSwim 20s linear infinite;
+            opacity: 0.6;
+        }
+        
+        @keyframes fishSwim {
+            0% { left: -50px; top: 70%; }
+            100% { left: 100%; top: 60%; }
+        }
+        
+        /* 新增的遊戲說明樣式 */
+        .instructions {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .instructions-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .instructions h2 {
+            color: #0066cc;
+            margin-top: 0;
+            text-align: center;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .start-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto 0;
+            transition: background-color 0.3s;
+        }
+        
+        .start-btn:hover {
+            background-color: #0055aa;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景音樂 -->
+    <audio id="background-music" loop>
+        <source src="bgMusic.mp3" type="audio/mpeg">
+        您的瀏覽器不支援音頻元素。
+    </audio>
+
+    <!-- 新增遊戲說明彈窗 -->
+    <div class="instructions" id="instructions">
+        <div class="instructions-content">
+            <h2>海洋知識挑戰 遊戲說明</h2>
+            <p>歡迎來到SDGs目標14的第三關！這是一個測試你對海洋保育知識的問答遊戲。</p>
+            <ul>
+                <li>本關共有10道關於海洋生態與保育的選擇題</li>
+                <li>每題只有一個正確答案</li>
+                <li>答對1題得1分，答錯不扣分</li>
+                <li>獲得5分以上(含)即可過關</li>
+                <li>答題後會顯示正確答案與詳細解釋</li>
+                <li>點擊選項後無法更改，請謹慎作答</li>
+            </ul>
+            <p>準備好測試你的海洋知識了嗎？讓我們開始吧！</p>
+            <button class="start-btn" id="start-btn">開始挑戰</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="title">SDGs 目標14｜第三關：海洋知識挑戰</div>
+        <div class="progress">第 <span id="current-question">1</span> / 10 題 | 得分: <span id="score">0</span></div>
+        <div class="music-controls">
+            <button id="music-toggle-btn" class="music-button">播放音樂</button>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="volume-slider">
+        </div>
+    </div>
+    
+    <div class="quiz-container" id="quiz-container">
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="next-btn" disabled>下一題</button>
+    </div>
+    
+    <div class="ocean-background"></div>
+    
+    <div class="message" id="message">
+        <h2 id="message-title">測驗完成!</h2>
+        <p id="message-text"></p>
+        <button class="next-btn" id="result-btn" onclick="nextLevel()">前往第四關</button>
+    </div>
+    
+    <script>
+        // 題庫 - SDG14相關問題
+        const questions = [
+            {
+                question: "SDG14的主要目標是什麼？",
+                options: [
+                    "保護和永續利用海洋與海洋資源",
+                    "開發所有海洋資源以促進經濟增長",
+                    "增加全球漁業捕撈量",
+                    "減少海洋科學研究"
+                ],
+                answer: 0,
+                explanation: "SDG14旨在保護和永續利用海洋與海洋資源，以促進永續發展。"
+            },
+            {
+                question: "下列哪種海洋污染最嚴重威脅海洋生物？",
+                options: [
+                    "塑膠污染",
+                    "聲音污染",
+                    "光污染",
+                    "熱污染"
+                ],
+                answer: 0,
+                explanation: "塑膠污染是海洋面臨的最嚴重威脅之一，每年約有800萬噸塑膠廢棄物進入海洋。"
+            },
+            {
+                question: "珊瑚白化主要是由什麼原因引起的？",
+                options: [
+                    "海水溫度上升",
+                    "過度捕撈",
+                    "海洋酸化",
+                    "塑膠污染"
+                ],
+                answer: 0,
+                explanation: "珊瑚白化主要是由於海水溫度上升導致珊瑚與其共生藻類分離。"
+            },
+            {
+                question: "下列哪個不是保護海洋的有效方法？",
+                options: [
+                    "增加商業捕撈配額",
+                    "建立海洋保護區",
+                    "減少塑膠使用",
+                    "推廣永續漁業"
+                ],
+                answer: 0,
+                explanation: "增加商業捕撈配額會導致過度捕撈，不是保護海洋的有效方法。"
+            },
+            {
+                question: "海洋吸收了約多少比例的人為二氧化碳排放？",
+                options: [
+                    "30%",
+                    "50%",
+                    "70%",
+                    "90%"
+                ],
+                answer: 0,
+                explanation: "海洋吸收了約30%的人為二氧化碳排放，這導致了海洋酸化問題。"
+            },
+            {
+                question: "下列哪種魚類目前面臨過度捕撈的威脅？",
+                options: [
+                    "鮪魚",
+                    "沙丁魚",
+                    "鯡魚",
+                    "鯖魚"
+                ],
+                answer: 0,
+                explanation: "許多鮪魚種群因過度捕撈而面臨威脅，特別是藍鰭鮪魚。"
+            },
+            {
+                question: "海洋酸化會對下列哪種生物造成最直接的影響？",
+                options: [
+                    "珊瑚和貝類",
+                    "海豚和鯨魚",
+                    "海龜",
+                    "海鳥"
+                ],
+                answer: 0,
+                explanation: "海洋酸化會影響珊瑚和貝類等生物形成碳酸鈣外殼或骨骼的能力。"
+            },
+            {
+                question: "下列哪個國際協議旨在保護海洋生物多樣性？",
+                options: [
+                    "聯合國海洋法公約",
+                    "巴黎氣候協定",
+                    "京都議定書",
+                    "蒙特婁議定書"
+                ],
+                answer: 0,
+                explanation: "聯合國海洋法公約(UNCLOS)是保護海洋生物多樣性的重要國際協議。"
+            },
+            {
+                question: "紅樹林對海洋生態系統的主要作用是什麼？",
+                options: [
+                    "提供幼魚棲息地和海岸保護",
+                    "增加海水鹽度",
+                    "減少海洋生物多樣性",
+                    "促進珊瑚生長"
+                ],
+                answer: 0,
+                explanation: "紅樹林為許多海洋生物提供繁殖和棲息地，並保護海岸免受侵蝕。"
+            },
+            {
+                question: "微塑膠是指直徑小於多少的塑膠顆粒？",
+                options: [
+                    "5毫米",
+                    "1厘米",
+                    "2毫米",
+                    "10毫米"
+                ],
+                answer: 0,
+                explanation: "微塑膠是指直徑小於5毫米的塑膠顆粒，它們已進入海洋食物鏈。"
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        // 音樂相關變量
+        const music = document.getElementById('background-music');
+        const musicToggleButton = document.getElementById('music-toggle-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        
+        // 初始化測驗
+        function initQuiz() {
+            // 顯示遊戲說明
+            document.getElementById('instructions').style.display = 'flex';
+            
+            // 開始按鈕事件 - 使用事件委派確保按鈕可用
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'start-btn') {
+                    startQuiz();
+                }
+            });
+
+            // 監聽音樂播放器狀態，更新按鈕文字
+            music.addEventListener('play', () => {
+                musicToggleButton.textContent = '暫停音樂';
+            });
+            music.addEventListener('pause', () => {
+                musicToggleButton.textContent = '播放音樂';
+            });
+
+            // 初始設定音量滑塊和音樂音量
+            volumeSlider.value = music.volume; // 設置滑塊的初始值為音樂的當前音量
+
+            // 為音樂控制按鈕和滑塊添加事件監聽器
+            musicToggleButton.addEventListener('click', toggleMusicPlayPause);
+            volumeSlider.addEventListener('input', setMusicVolume);
+        }
+        
+        // 開始測驗
+        function startQuiz() {
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            showQuestion();
+            
+            // 添加魚兒動畫
+            for (let i = 0; i < 3; i++) {
+                createFish(i);
+            }
+
+            // 嘗試播放音樂
+            music.play().catch(error => {
+                console.log("嘗試自動播放音樂失敗:", error);
+                // 這裡可以選擇性地顯示提示，告訴用戶手動點擊播放按鈕
+            });
+        }
+
+        // 音樂播放/暫停功能
+        function toggleMusicPlayPause() {
+            if (music.paused) {
+                music.play().catch(error => {
+                    console.log("音樂播放失敗，可能是使用者未互動:", error);
+                    // Instead of alert(), log to console or show a custom message.
+                    console.log("音樂播放需要您的互動，請點擊螢幕任意處或再次點擊播放按鈕。");
+                });
+            } else {
+                music.pause();
+            }
+        }
+
+        // 音量調節功能
+        function setMusicVolume() {
+            music.volume = volumeSlider.value;
+        }
+        
+        // 創建魚兒
+        function createFish(index) {
+            const fish = document.createElement('div');
+            fish.className = 'fish';
+            fish.style.top = `${Math.random() * 15 + 70}%`;
+            fish.style.animationDuration = `${Math.random() * 15 + 15}s`;
+            fish.style.animationDelay = `${index * 5}s`;
+            document.body.appendChild(fish);
+        }
+        
+        // 顯示問題
+        function showQuestion() {
+            const questionElement = document.getElementById('question');
+            const optionsElement = document.getElementById('options');
+            const progressElement = document.getElementById('current-question');
+            const scoreElement = document.getElementById('score');
+            
+            // 更新進度和分數
+            progressElement.textContent = currentQuestion + 1;
+            scoreElement.textContent = score;
+            
+            // 設置問題
+            questionElement.textContent = questions[currentQuestion].question;
+            
+            // 清除之前選項
+            optionsElement.innerHTML = '';
+            
+            // 添加新選項
+            questions[currentQuestion].options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(optionElement);
+            });
+            
+            // 重置反饋和按鈕
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('next-btn').disabled = true;
+            selectedOption = null;
+        }
+        
+        // 選擇選項
+        function selectOption(index) {
+            if (selectedOption !== null) return;
+            
+            selectedOption = index;
+            const options = document.querySelectorAll('.option');
+            const correctAnswer = questions[currentQuestion].answer;
+            const feedbackElement = document.getElementById('feedback');
+            
+            // 標記正確和錯誤答案
+            options.forEach((option, i) => {
+                if (i === correctAnswer) {
+                    option.classList.add('correct');
+                } else if (i === index && i !== correctAnswer) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // 更新分數和提供反饋
+            if (index === correctAnswer) {
+                score++;
+                feedbackElement.textContent = "✓ 正確！" + questions[currentQuestion].explanation;
+                feedbackElement.style.color = "#2E8B57";
+            } else {
+                feedbackElement.textContent = "✗ 錯誤！正確答案是: " + questions[currentQuestion].options[correctAnswer] + ". " + questions[currentQuestion].explanation;
+                feedbackElement.style.color = "#CD5C5C";
+            }
+            
+            // 啟用下一題按鈕
+            document.getElementById('next-btn').disabled = false;
+            document.getElementById('score').textContent = score;
+        }
+        
+        // 下一題
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+        
+        // 顯示結果
+        function showResult() {
+            const messageTitle = document.getElementById('message-title');
+            const messageText = document.getElementById('message-text');
+            const resultBtn = document.getElementById('result-btn');
+            
+            if (score >= 5) {
+                messageTitle.textContent = "測驗通過!";
+                messageText.textContent = `恭喜你答對了 ${score} 題！你對海洋保育有很好的認識。`;
+                resultBtn.style.display = 'block';
+            } else {
+                messageTitle.textContent = "測驗未通過";
+                messageText.textContent = `你只答對了 ${score} 題，需要至少答對5題才能過關。請再試一次！`;
+                resultBtn.style.display = 'none';
+            }
+            
+            document.getElementById('message').style.display = 'block';
+            music.pause(); // 遊戲結束時暫停音樂
+        }
+        
+        // 前往下一關
+        function nextLevel() {
+            if (score >= 5) {
+                window.location.href = "level4.html";
+            }
+        }
+        
+        // 事件監聽器
+        document.getElementById('next-btn').addEventListener('click', nextQuestion);
+        
+        // 初始化測驗
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>

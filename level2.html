@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDGs 目標14｜第二關：海龜的復仇</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB, #1E90FF);
+            height: 100vh;
+            cursor: crosshair;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* 使內容垂直居中 */
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* 控制元素之間的間距 */
+        }
+
+        .music-button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .music-button:hover {
+            background-color: #0055aa;
+        }
+
+        .volume-slider {
+            width: 80px;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .beach {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background-color: #F5DEB3;
+            z-index: 1;
+        }
+        
+        .turtle {
+            position: absolute;
+            width: 120px;
+            height: 90px;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90"><!-- 龜殼 --><ellipse cx="60" cy="45" rx="50" ry="30" fill="%23008000" stroke="%23005000" stroke-width="3"/><path d="M40,30 Q60,15 80,30 Q90,40 80,60 Q60,75 40,60 Q30,40 40,30 Z" fill="%2300A000" stroke="%23005000" stroke-width="2"/><!-- 頭部 --><circle cx="90" cy="30" r="15" fill="%23008000" stroke="%23005000" stroke-width="2"/><!-- 眼睛 --><circle cx="95" cy="25" r="4" fill="%23FFFFFF"/><circle cx="95" cy="25" r="2" fill="%23000000"/><!-- 嘴巴 --><path d="M100,35 Q95,40 90,35" stroke="%23005000" stroke-width="2" fill="none"/><!-- 四肢 --><path d="M30,40 Q20,30 10,40 M30,50 Q20,60 10,50 M90,40 Q100,30 110,40 M90,50 Q100,60 110,50" stroke="%23008000" stroke-width="4" stroke-linecap="round" fill="none"/><!-- 尾巴 --><path d="M10,45 Q0,50 10,55" stroke="%23008000" stroke-width="3" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            z-index: 10;
+            animation: turtleBreathe 2s infinite ease-in-out;
+        }
+        
+        @keyframes turtleBreathe {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
+        
+        .water-jet {
+            position: absolute;
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(to bottom, #00BFFF, #0066CC);
+            border-radius: 10px;
+            z-index: 5;
+            display: none;
+            transform-origin: center bottom;
+            box-shadow: 0 0 5px rgba(0, 191, 255, 0.7);
+        }
+        
+        .person {
+            position: absolute;
+            width: 40px;
+            height: 80px;
+            bottom: 30%;
+            z-index: 3;
+            transition: transform 0.1s;
+        }
+        
+        .person.litterer {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 80"><circle cx="20" cy="15" r="10" fill="%23FF0000"/><path d="M15,25 L25,25 L25,65 L15,65 Z" fill="%230000FF"/><path d="M10,65 L30,65 L25,75 L15,75 Z" fill="%230000FF"/><path d="M25,35 L35,25" stroke="%23FF0000" stroke-width="2"/><circle cx="35" cy="25" r="5" fill="%23FFFFFF" stroke="%23000000" stroke-width="1"/></svg>');
+            animation: littererShake 3s infinite;
+        }
+        
+        .person.good {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 80"><circle cx="20" cy="15" r="10" fill="%23FFD700"/><path d="M15,25 L25,25 L25,65 L15,65 Z" fill="%2300AA00"/><path d="M10,65 L30,65 L25,75 L15,75 Z" fill="%2300AA00"/><path d="M25,35 L35,25" stroke="%2300AA00" stroke-width="2"/></svg>');
+        }
+        
+        .halo {
+            position: absolute;
+            width: 30px;
+            height: 10px;
+            background: radial-gradient(ellipse at center, rgba(0,255,0,0.8) 0%, rgba(0,255,0,0) 70%);
+            border-radius: 50%;
+            top: -5px;
+            left: 5px;
+            z-index: 4;
+            animation: haloPulse 2s infinite;
+        }
+        
+        @keyframes haloPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        @keyframes littererShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        
+        .trash {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            z-index: 2;
+        }
+        
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .message h2 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        
+        .next-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .next-btn:hover {
+            background-color: #0055aa;
+        }
+        
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        .hit-effect {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="M15,0 L20,15 L15,30 L10,15 Z" fill="%2300BFFF" opacity="0.7"/></svg>');
+            background-repeat: no-repeat;
+            z-index: 4;
+            animation: hitFade 0.5s forwards;
+        }
+        
+        @keyframes hitFade {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        /* 遊戲說明畫面 */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .intro-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .intro-content h2 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        
+        .intro-content p {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .start-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        
+        .start-btn:hover {
+            background-color: #0055aa;
+        }
+        
+        .warning {
+            color: #FF0000;
+            font-weight: bold;
+        }
+        
+        .person-demo {
+            display: inline-block;
+            width: 40px;
+            height: 80px;
+            margin: 0 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景音樂 -->
+    <audio id="background-music" loop>
+        <source src="bgMusic.mp3" type="audio/mpeg">
+        您的瀏覽器不支援音頻元素。
+    </audio>
+
+    <div class="header">
+        <div class="title">SDGs 目標14｜第二關：海龜的復仇</div>
+        <div class="score">得分: <span id="score">0</span>/50</div>
+        <div class="music-controls">
+            <button id="music-toggle-btn" class="music-button">播放音樂</button>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="volume-slider">
+        </div>
+    </div>
+    
+    <div class="game-container">
+        <div class="beach"></div>
+        <div class="turtle" id="turtle"></div>
+        <div class="water-jet" id="water-jet"></div>
+        <!-- 人物和垃圾會由JS動態生成 -->
+    </div>
+    
+    <div class="instructions">
+        點擊滑鼠射擊亂丟垃圾的人（紅色）！射中+2分<br>
+        不要射到環保人士（綠色）！射中-5分
+    </div>
+    
+    <div class="message" id="message">
+        <h2 id="message-title">任務成功!</h2>
+        <p id="message-text">你已達到50分!</p>
+        <button class="next-btn" onclick="nextLevel()">前往第三關</button>
+    </div>
+    
+    <!-- 遊戲說明畫面 -->
+    <div class="intro-screen" id="intro-screen">
+        <div class="intro-content">
+            <h2>第二關：海龜的復仇</h2>
+            <p>海灘上出現了兩種人：</p>
+            
+            <div style="text-align: center; margin: 15px 0;">
+                <div style="display: inline-block; text-align: center; margin: 0 20px;">
+                    <div class="person-demo" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 40 80\"><circle cx=\"20\" cy=\"15\" r=\"10\" fill=\"%23FF0000\"/><path d=\"M15,25 L25,25 L25,65 L15,65 Z\" fill=\"%230000FF\"/><path d=\"M10,65 L30,65 L25,75 L15,75 Z\" fill=\"%230000FF\"/><path d=\"M25,35 L35,25\" stroke=\"%23FF0000\" stroke-width=\"2\"/><circle cx=\"35\" cy=\"25\" r=\"5\" fill=\"%23FFFFFF\" stroke=\"%23000000\" stroke-width=\"1\"/></svg>')"></div>
+                    <p><strong>亂丟垃圾的人</strong><br>紅色頭部、藍色身體<br>手持白色垃圾袋</p>
+                </div>
+                
+                <div style="display: inline-block; text-align: center; margin: 0 20px;">
+                    <div class="person-demo" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 40 80\"><circle cx=\"20\" cy=\"15\" r=\"10\" fill=\"%23FFD700\"/><path d=\"M15,25 L25,25 L25,65 L15,65 Z\" fill=\"%2300AA00\"/><path d=\"M10,65 L30,65 L25,75 L15,75 Z\" fill=\"%2300AA00\"/><path d=\"M25,35 L35,25\" stroke=\"%2300AA00\" stroke-width=\"2\"/></svg>')"></div>
+                    <p><strong>環保人士</strong><br>金色頭部、綠色身體<br>頭上有綠色光環</p>
+                </div>
+            </div>
+            
+            <p class="warning">你的任務：控制海龜用水柱射擊亂丟垃圾的壞人！</p>
+            <p>遊戲規則：</p>
+            <ul style="text-align: left; margin-left: 20px;">
+                <li>點擊滑鼠射擊水柱</li>
+                <li>射中亂丟垃圾的人 +2分</li>
+                <li>誤射環保人士 -5分</li>
+                <li>達到50分即可過關</li>
+            </ul>
+            <p>提示：</p>
+            <ul style="text-align: left; margin-left: 20px;">
+                <li>水柱只會擊中最前面的人物</li>
+                <li>亂丟垃圾的人移動較快且會搖晃</li>
+                <li>環保人士移動較慢且有綠色光環</li>
+                <li>瞄準時注意水柱的窄小範圍</li>
+            </ul>
+            <button class="start-btn" onclick="startGame()">開始遊戲</button>
+        </div>
+    </div>
+    
+    <script>
+        let score = 0;
+        let gameActive = false;
+        let people = [];
+        let trashItems = [];
+        let canShoot = true;
+        let shootCooldown = false;
+        let shootInterval; // 新增變數來儲存水柱動畫的計時器
+        
+        const music = document.getElementById('background-music');
+        const musicToggleButton = document.getElementById('music-toggle-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+
+        // 監聽音樂播放器狀態，更新按鈕文字
+        music.addEventListener('play', () => {
+            musicToggleButton.textContent = '暫停音樂';
+        });
+        music.addEventListener('pause', () => {
+            musicToggleButton.textContent = '播放音樂';
+        });
+
+        // 初始設定音量滑塊和音樂音量
+        volumeSlider.value = music.volume; // 設置滑塊的初始值為音樂的當前音量
+
+        // 音樂播放/暫停功能
+        function toggleMusicPlayPause() {
+            if (music.paused) {
+                music.play().catch(error => {
+                    console.log("音樂播放失敗，可能是使用者未互動:", error);
+                    alert("音樂播放需要您的互動，請點擊螢幕任意處或再次點擊播放按鈕。");
+                });
+            } else {
+                music.pause();
+            }
+        }
+
+        // 音量調節功能
+        function setMusicVolume() {
+            music.volume = volumeSlider.value;
+        }
+
+        // 為音樂控制按鈕和滑塊添加事件監聽器
+        musicToggleButton.addEventListener('click', toggleMusicPlayPause);
+        volumeSlider.addEventListener('input', setMusicVolume);
+
+        // 開始遊戲
+        function startGame() {
+            document.getElementById('intro-screen').style.display = 'none';
+            gameActive = true;
+            initGame();
+            music.play().catch(error => {
+                console.log("嘗試自動播放音樂失敗:", error);
+                // 這裡可以選擇性地顯示提示，告訴用戶手動點擊播放按鈕
+            });
+        }
+        
+        // 初始化遊戲
+        function initGame() {
+            updateScore();
+            spawnPeople();
+            
+            // 設置點擊事件
+            document.addEventListener('click', shootWater);
+            
+            // 定期生成新人物
+            setInterval(spawnPerson, 2000);
+        }
+        
+        // 生成初始人群
+        function spawnPeople() {
+            for (let i = 0; i < 3; i++) {
+                spawnPerson();
+            }
+        }
+        
+        // 生成單個人物
+        function spawnPerson() {
+            if (!gameActive) return;
+            
+            const gameContainer = document.querySelector('.game-container');
+            const isLitterer = Math.random() > 0.5; // 50%機率是亂丟垃圾的人
+            
+            const person = document.createElement('div');
+            person.className = `person ${isLitterer ? 'litterer' : 'good'}`;
+            person.dataset.type = isLitterer ? 'litterer' : 'good';
+            
+            // 從右側進入
+            person.style.left = `${gameContainer.offsetWidth + 50}px`;
+            person.style.bottom = '30%';
+            
+            // 設置z-index (越靠近左邊的人物z-index越高)
+            person.style.zIndex = Math.floor(Math.random() * 10) + 1;
+            
+            gameContainer.appendChild(person);
+            
+            // 如果是環保人士，添加光環
+            if (!isLitterer) {
+                const halo = document.createElement('div');
+                halo.className = 'halo';
+                person.appendChild(halo);
+            }
+            
+            // 設置移動動畫 - 壞人移動快，好人移動慢
+            const speed = isLitterer ? Math.random() * 3 + 2 : Math.random() * 1 + 1;
+            let position = gameContainer.offsetWidth + 50;
+            
+            const moveInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(moveInterval);
+                    return;
+                }
+                
+                position -= speed;
+                person.style.left = `${position}px`;
+                
+                // 更新z-index (越靠近左邊的人物z-index越高)
+                const zIndex = Math.floor((position / gameContainer.offsetWidth) * 10) + 1;
+                person.style.zIndex = zIndex;
+                
+                // 如果人物走到左邊邊界外，移除
+                if (position < -50) {
+                    clearInterval(moveInterval);
+                    person.remove();
+                    people = people.filter(p => p.element !== person);
+                }
+                
+                // 亂丟垃圾的人有機率丟垃圾
+                if (isLitterer && Math.random() < 0.01 && position > 100 && position < gameContainer.offsetWidth - 100) {
+                    dropTrash(person);
+                }
+            }, 20);
+            
+            // 保存人物引用
+            people.push({
+                element: person,
+                isLitterer: isLitterer,
+                moveInterval: moveInterval,
+                speed: speed
+            });
+        }
+        
+        // 丟垃圾
+        function dropTrash(person) {
+            if (!gameActive) return;
+            
+            const gameContainer = document.querySelector('.game-container');
+            const trashTypes = [
+                { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="15" fill="%23ADD8E6" stroke="%23006699" stroke-width="1"/></svg>' }, // 寶特瓶
+                { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><rect x="5" y="5" width="15" height="15" fill="%23FFFFFF" stroke="%23999999" stroke-width="1"/></svg>' }, // 保麗龍
+                { svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M5,5 L15,5 L15,15 L5,15 Z" fill="%23E6E6FA" stroke="%23696996" stroke-width="1"/></svg>' }  // 塑膠袋
+            ];
+            
+            const trashType = trashTypes[Math.floor(Math.random() * trashTypes.length)];
+            const trash = document.createElement('div');
+            trash.className = 'trash';
+            trash.style.backgroundImage = `url('data:image/svg+xml;utf8,${trashType.svg}')`;
+            trash.style.backgroundRepeat = 'no-repeat';
+            trash.style.backgroundSize = 'contain';
+            
+            const personRect = person.getBoundingClientRect();
+            trash.style.left = `${personRect.left - gameContainer.getBoundingClientRect().left}px`;
+            trash.style.bottom = '30%';
+            
+            gameContainer.appendChild(trash);
+            
+            // 垃圾掉落動畫
+            let dropHeight = 0;
+            const dropInterval = setInterval(() => {
+                dropHeight += 2;
+                trash.style.bottom = `${30 - dropHeight}%`;
+                
+                if (30 - dropHeight <= 0) {
+                    clearInterval(dropInterval);
+                    setTimeout(() => {
+                        trash.remove();
+                        trashItems = trashItems.filter(t => t.element !== trash);
+                    }, 3000);
+                }
+            }, 20);
+            
+            trashItems.push({
+                element: trash,
+                dropInterval: dropInterval
+            });
+        }
+        
+        // 射擊水柱
+        function shootWater(e) {
+            if (!gameActive || !canShoot || shootCooldown) return;
+            
+            canShoot = false;
+            shootCooldown = true;
+            
+            // 射擊冷卻時間
+            setTimeout(() => {
+                shootCooldown = false;
+            }, 300);
+            
+            const turtle = document.getElementById('turtle');
+            const waterJet = document.getElementById('water-jet');
+            const turtleRect = turtle.getBoundingClientRect();
+            const turtleCenterX = turtleRect.left + turtleRect.width / 2;
+            const turtleCenterY = turtleRect.top + turtleRect.height / 2;
+            
+            // 設置水柱起始位置
+            waterJet.style.left = `${turtleCenterX - 2}px`;
+            waterJet.style.top = `${turtleCenterY}px`;
+            waterJet.style.display = 'block';
+            
+            // 計算角度
+            const angle = Math.atan2(e.clientX - turtleCenterX, e.clientY - turtleCenterY);
+            const distance = Math.sqrt(
+                Math.pow(e.clientX - turtleCenterX, 2) + 
+                Math.pow(e.clientY - turtleCenterY, 2)
+            );
+            
+            // 設置水柱旋轉
+            const degrees = -angle * (180 / Math.PI) + 90;
+            waterJet.style.transform = `rotate(${degrees}deg)`;
+            
+            // 水柱動畫
+            let currentDistance = 0;
+            const step = distance / 20;
+            
+            // 清除任何舊的水柱動畫計時器
+            if (shootInterval) {
+                clearInterval(shootInterval);
+            }
+
+            shootInterval = setInterval(() => {
+                currentDistance += step;
+                waterJet.style.left = `${turtleCenterX + Math.sin(angle) * currentDistance - 2}px`;
+                waterJet.style.top = `${turtleCenterY + Math.cos(angle) * currentDistance}px`;
+                
+                // 檢查是否擊中人物
+                if (checkHit(waterJet)) { // 如果擊中，則停止水柱動畫
+                    clearInterval(shootInterval);
+                    waterJet.style.display = 'none';
+                    canShoot = true;
+                    return; // 擊中後不再繼續移動水柱
+                }
+                
+                if (currentDistance >= distance) {
+                    clearInterval(shootInterval);
+                    waterJet.style.display = 'none';
+                    canShoot = true;
+                }
+            }, 10);
+        }
+        
+        // 檢查是否擊中 (修改後)
+        function checkHit(waterJet) {
+            const waterJetRect = waterJet.getBoundingClientRect();
+            const gameContainer = document.querySelector('.game-container');
+            
+            // 調整碰撞檢測範圍 (更窄的水柱)
+            const adjustedWaterJetRect = {
+                left: waterJetRect.left + 1,
+                right: waterJetRect.right - 1,
+                top: waterJetRect.top,
+                bottom: waterJetRect.bottom
+            };
+            
+            // 找出所有碰撞的人物並按z-index排序 (前面的人物優先)
+            const hitPeople = people.filter(person => {
+                const personRect = person.element.getBoundingClientRect();
+                return (
+                    adjustedWaterJetRect.left < personRect.right &&
+                    adjustedWaterJetRect.right > personRect.left &&
+                    adjustedWaterJetRect.top < personRect.bottom &&
+                    adjustedWaterJetRect.bottom > personRect.top
+                );
+            }).sort((a, b) => {
+                // 按z-index排序 (數值大的在前面)
+                return parseInt(b.element.style.zIndex || 0) - parseInt(a.element.style.zIndex || 0);
+            });
+            
+            // 只處理最前面的人物
+            if (hitPeople.length > 0) {
+                const person = hitPeople[0];
+                const personRect = person.element.getBoundingClientRect();
+                
+                // 創建擊中效果
+                const hitEffect = document.createElement('div');
+                hitEffect.className = 'hit-effect';
+                hitEffect.style.left = `${personRect.left - gameContainer.getBoundingClientRect().left + personRect.width/2 - 15}px`;
+                hitEffect.style.top = `${personRect.top - gameContainer.getBoundingClientRect().top + personRect.height/2 - 15}px`;
+                gameContainer.appendChild(hitEffect);
+                
+                // 移除擊中效果
+                setTimeout(() => {
+                    hitEffect.remove();
+                }, 500);
+                
+                // 擊中效果
+                person.element.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    person.element.style.transform = 'scale(1)';
+                }, 100);
+                
+                // 更新分數
+                if (person.isLitterer) {
+                    score += 2;
+                } else {
+                    score -= 5;
+                    if (score < 0) score = 0;
+                }
+                updateScore();
+                
+                // 移除人物
+                clearInterval(person.moveInterval);
+                person.element.remove();
+                people = people.filter(p => p.element !== person.element);
+                
+                // 檢查遊戲是否結束
+                if (score >= 50) {
+                    gameActive = false;
+                    showSuccess();
+                }
+                return true; // 表示擊中
+            }
+            return false; // 表示沒有擊中
+        }
+        
+        // 更新分數
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+        
+        // 顯示成功訊息
+        function showSuccess() {
+            document.getElementById('message').style.display = 'block';
+            document.getElementById('message-title').textContent = "任務成功!";
+            document.getElementById('message-text').textContent = `你已達到 ${score} 分，保護了海灘環境!`;
+            music.pause(); // 遊戲結束時暫停音樂
+        }
+        
+        // 下一關
+        function nextLevel() {
+            window.location.href = "level3.html";
+        }
+
+        // 在窗口載入時顯示說明畫面
+        window.onload = function() {
+            document.getElementById('intro-screen').style.display = 'flex';
+        };
+    </script>
+</body>
+</html>
